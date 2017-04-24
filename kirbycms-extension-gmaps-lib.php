@@ -10,6 +10,7 @@ class GMaps {
   const ATTR_LAT = "lat";
   const ATTR_LNG = "lng";
   const ATTR_ZOOM = "zoom";
+  const ATTR_SCROLL = "scroll";
   const ATTR_PLACE = "place";
   const ATTR_PROFILE = "profile";
   const ATTR_KML = "kml";
@@ -36,6 +37,7 @@ class GMaps {
   const ATTR_CONTROLS_MAPTYPE_DEFAULT = "maptype";
   const ATTR_CONTROLS_DRAGABLE = "dragable";
   const ATTR_CONTROLS_ZOOMABLE = "zoomable";
+  const ATTR_CONTROLS_SCROLLABLE = "scrollable";
   const ATTR_CONTROLS_SCALE = "scale";
   const ATTR_CONTROLS_MAPTYPE_SELECTABLE = "maptype_selectable";
   const ATTR_CONTROLS_STREETVIEW = "streetview";
@@ -47,6 +49,7 @@ class GMaps {
   const JS_ATTR_LAT = "data-gmaps-lat";
   const JS_ATTR_LNG = "data-gmaps-lng";
   const JS_ATTR_ZOOM = "data-gmaps-zoom";
+  const JS_ATTR_SCROLL = "data-gmaps-scroll";
   const JS_ATTR_PLACE = "data-gmaps-place";
   const JS_ATTR_DEBUG = "data-gmaps-debug";
   const JS_OBJECT_KML = "gmaps-kml";
@@ -57,6 +60,7 @@ class GMaps {
   const JS_ATTR_CONTROLS_MAPTYPE_DEFAULT = "maptype-default";
   const JS_ATTR_CONTROLS_DRAGABLE = "dragable";
   const JS_ATTR_CONTROLS_ZOOMABLE = "zoomable";
+  const JS_ATTR_CONTROLS_SCROLLABLE = "scrollable";
   const JS_ATTR_CONTROLS_SCALE = "scale";
   const JS_ATTR_CONTROLS_MAPTYPE_SELECTABLE = "maptype-selectable";
   const JS_ATTR_CONTROLS_STREETVIEW = "streetview";
@@ -78,12 +82,14 @@ class GMaps {
   const CONFIG_PARA_LAT = "kirby.extension.gmaps.lat";
   const CONFIG_PARA_LNG = "kirby.extension.gmaps.lng";
   const CONFIG_PARA_ZOOM = "kirby.extension.gmaps.zoom";
+  const CONFIG_PARA_SCROLL = "kirby.extension.gmaps.scroll";
   const CONFIG_PARA_API_KEY = 'kirby.extension.gmaps.apikey';
   const CONFIG_PARA_CONTROLS_MAPTYPES = 'kirby.extension.gmaps.controls.maptypes';
   const CONFIG_PARA_CONTROLS_MAPTYPE_SELECTABLE = 'kirby.extension.gmaps.controls.maptype_selectable';
   const CONFIG_PARA_CONTROLS_MAPTYPE_DEFAULT = "kirby.extension.gmaps.controls.maptype.default";
   const CONFIG_PARA_CONTROLS_DRAGGABLE = 'kirby.extension.gmaps.controls.draggable';
   const CONFIG_PARA_CONTROLS_ZOOMABLE = 'kirby.extension.gmaps.controls.zoomable';
+  const CONFIG_PARA_CONTROLS_SCROLLABLE = 'kirby.extension.gmaps.controls.scrollable';
   const CONFIG_PARA_CONTROLS_SCALE = 'kirby.extension.gmaps.controls.scale';
   const CONFIG_PARA_CONTROLS_STREETVIEW = 'kirby.extension.gmaps.controls.streetview';
   const CONFIG_PARA_CONTROLS_FITBOUNDS_MARKER = 'kirby.extension.gmaps.controls.fitbounds.marker';
@@ -94,6 +100,7 @@ class GMaps {
     self::ATTR_LAT => self::JS_ATTR_LAT,
     self::ATTR_LNG => self::JS_ATTR_LNG,
     self::ATTR_ZOOM => self::JS_ATTR_ZOOM,
+    self::ATTR_SCROLL => self::JS_ATTR_SCROLL,
     self::ATTR_PLACE => self::JS_ATTR_PLACE,
     self::ATTR_DEBUG => self::JS_ATTR_DEBUG
   ];
@@ -119,6 +126,7 @@ class GMaps {
   protected $para_mapping_controls = [
     self::ATTR_CONTROLS_DRAGABLE => self::JS_ATTR_CONTROLS_DRAGABLE,
     self::ATTR_CONTROLS_ZOOMABLE => self::JS_ATTR_CONTROLS_ZOOMABLE,
+    self::ATTR_CONTROLS_SCROLLABLE => self::JS_ATTR_CONTROLS_SCROLLABLE,
     self::ATTR_CONTROLS_MAPTYPE_SELECTABLE => self::JS_ATTR_CONTROLS_MAPTYPE_SELECTABLE,
     self::ATTR_CONTROLS_MAPTYPES => self::JS_ATTR_CONTROLS_MAPTYPES,
     self::ATTR_CONTROLS_MAPTYPE_DEFAULT => self::JS_ATTR_CONTROLS_MAPTYPE_DEFAULT,
@@ -172,6 +180,7 @@ class GMaps {
     
     $this->default_controls[self::JS_ATTR_CONTROLS_DRAGABLE] = kirby()->option(self::CONFIG_PARA_CONTROLS_DRAGGABLE, true);
     $this->default_controls[self::JS_ATTR_CONTROLS_ZOOMABLE] = kirby()->option(self::CONFIG_PARA_CONTROLS_ZOOMABLE, true);
+    $this->default_controls[self::JS_ATTR_CONTROLS_SCROLLABLE] = kirby()->option(self::CONFIG_PARA_CONTROLS_SCROLLABLE, true);
     $this->default_controls[self::JS_ATTR_CONTROLS_SCALE] = kirby()->option(self::CONFIG_PARA_CONTROLS_SCALE, true);
     $this->default_controls[self::JS_ATTR_CONTROLS_MAPTYPES] = kirby()->option(self::CONFIG_PARA_CONTROLS_MAPTYPES, "roadmap,satellite,hybrid,terrain");
     $this->default_controls[self::JS_ATTR_CONTROLS_MAPTYPE_DEFAULT] = kirby()->option(self::CONFIG_PARA_CONTROLS_MAPTYPE_DEFAULT, "roadmap");
@@ -522,11 +531,12 @@ class GMaps {
         if ( is_string($value) && is_numeric($value) && intval($value) >= 0 && intval($value) <= 19 ) {
           $value = intval($value);
         } else {
-          $value = $this->default[self::PARA_ZOOM];
+          $value = $this->default[self::CONFIG_PARA_ZOOM];
         }
         break;
       case self::JS_ATTR_CONTROLS_DRAGABLE:
       case self::JS_ATTR_CONTROLS_ZOOMABLE:
+      case self::JS_ATTR_CONTROLS_SCROLLABLE:
       case self::JS_ATTR_CONTROLS_STREETVIEW:
       case self::JS_ATTR_CONTROLS_FITBOUNDS_MARKER:
       case self::JS_ATTR_CONTROLS_FITBOUNDS_KML:
@@ -691,9 +701,9 @@ class GMaps {
       $http_proto = "https";
     } 
     if ( kirby()->option(self::CONFIG_PARA_API_KEY, null) != null ){
-      return $http_proto."://maps.googleapis.com/maps/api/js?key=".kirby()->option(self::CONFIG_PARA_API_KEY)."&signed_in=true&libraries=places&callback=initialize";
+      return $http_proto."://maps.googleapis.com/maps/api/js?key=".kirby()->option(self::CONFIG_PARA_API_KEY)."&libraries=places&callback=initMap";
     }else{
-      return $http_proto."://maps.googleapis.com/maps/api/js?signed_in=true&libraries=places&callback=initialize";
+      return $http_proto."://maps.googleapis.com/maps/api/js?&libraries=places&callback=initMap";
     }
     
   }
