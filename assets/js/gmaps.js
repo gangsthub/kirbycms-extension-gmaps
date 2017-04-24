@@ -1,5 +1,5 @@
 function initialize() {
-  
+
   jQuery("[data-gmaps='true']").each(function(){
     var ui_dragable;
     var ui_zoomable;
@@ -13,12 +13,12 @@ function initialize() {
     var placeService;
     var map;
     var object_bounds = new google.maps.LatLngBounds();
-    
+
     var lat = jQuery(this).attr('data-gmaps-lat');
     var lng = jQuery(this).attr('data-gmaps-lng');
     var zoom = parseInt(jQuery(this).attr('data-gmaps-zoom'));
     var placeKeyword = jQuery(this).attr('data-gmaps-place');
-    
+
     var gmapsControls = jQuery(this).children('gmaps-controls');
     if(gmapsControls) {
       ui_dragable = gmapsControls.attr('dragable');
@@ -31,11 +31,11 @@ function initialize() {
       ui_maptype_default = gmapsControls.attr('maptype-default');
       ui_maptype_selectable = gmapsControls.attr('maptype-selectable');
     }
-    
+
     var gmapsstyle = jQuery(this).children('gmaps-style');
     var gmapskmls = jQuery(this).children('gmaps-kml');
     var gmapsmarkers = jQuery(this).children('gmaps-marker');
-    
+
     var myLatLng = new google.maps.LatLng(lat, lng);
     var mapOptions = new Array();
     mapOptions.zoom = zoom;
@@ -67,9 +67,9 @@ function initialize() {
     if (ui_scale) {
       mapOptions.scaleControl = true;
     }
-  
+
     map = new google.maps.Map(jQuery(this)[0], mapOptions);
-  
+
     // Place
     if(placeKeyword){
       placeService = new google.maps.places.PlacesService( map );
@@ -83,7 +83,7 @@ function initialize() {
         }
       });
     }
-  
+
     //KML
     for (var index = 0; index < gmapskmls.length; index++) {
       var kmlFile = jQuery(gmapskmls[index]).attr('file');
@@ -104,15 +104,15 @@ function initialize() {
       var markerLat = jQuery(gmapsmarkers[index]).attr('lat');
       var markerLng = jQuery(gmapsmarkers[index]).attr('lng');
       var markerPlace = jQuery(gmapsmarkers[index]).attr('place');
-      var markerContent = jQuery(gmapsmarkers[index]).html(); 
-        
+      var markerContent = jQuery(gmapsmarkers[index]).html();
+
       if (markerPlace) {
         placeService = new google.maps.places.PlacesService( map );
         placeService.textSearch({
           query: markerPlace
         }, markerPlaceCallback(map, markerTitle, markerContent, ui_fitbounds_marker, object_bounds) );
       } else if( markerLat && markerLng ) {
-        addMarker(map, markerTitle, new google.maps.LatLng(markerLat, markerLng), markerContent, ui_fitbounds_marker, object_bounds);     
+        addMarker(map, markerTitle, new google.maps.LatLng(markerLat, markerLng), markerContent, ui_fitbounds_marker, object_bounds);
       }
     }
   });
@@ -132,7 +132,7 @@ function addMarker(map, title, position, content, fitbounds, object_bounds) {
     map: map,
     title: title
   });
-  
+
   if (content) {
     var infowindow = new google.maps.InfoWindow({
       content: content
@@ -141,7 +141,7 @@ function addMarker(map, title, position, content, fitbounds, object_bounds) {
       infowindow.open(map, marker);
     });
   }
-  
+
   if (fitbounds && object_bounds) {
     map.fitBounds( object_bounds.extend(marker.getPosition()) );
   }
